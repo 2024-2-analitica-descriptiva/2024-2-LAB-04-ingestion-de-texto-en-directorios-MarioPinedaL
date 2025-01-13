@@ -71,3 +71,103 @@ def pregunta_01():
 
 
     """
+
+
+
+def pregunta_01():
+
+    import zipfile
+    import os
+    import os
+    import pandas as pd
+    import os
+
+    zip_path="files/input.zip"
+    destino="files/input"
+
+    # Verificar si el archivo zip existe
+    if not os.path.exists(zip_path):
+        print(f"El archivo {zip_path} no existe.")
+
+
+    # Descomprimir el archivo zip
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(destino)
+
+    print(f"El archivo se ha descomprimido en la carpeta: {destino}")
+
+
+
+
+
+    # Ruta base del directorio de entrada
+    ruta_directorio = "files/input/input"
+
+    # Listas para almacenar la información
+    frases = []
+    sentimientos = []
+    conjuntos = []
+
+    # Verificar si la ruta base existe
+    if not os.path.exists(ruta_directorio):
+        print(f"La ruta '{ruta_directorio}' no existe. Asegúrate de descomprimir el archivo ZIP correctamente.")
+    else:
+        # Recorrer las carpetas `train` y `test`
+        for conjunto in ['train', 'test']:
+            for sentimiento in ['negative', 'positive', 'neutral']:
+                carpeta = f"{ruta_directorio}/{conjunto}/{sentimiento}"  # Usar '/' para las rutas
+
+                if os.path.exists(carpeta):
+                    print(f"Procesando carpeta: {carpeta}")
+                    # Leer todos los archivos de la carpeta
+                    for archivo in os.listdir(carpeta):
+                        if archivo.endswith('.txt'):
+                            ruta_archivo = f"{carpeta}/{archivo}"  # Usar '/' para las rutas
+                            print(f"Leyendo archivo: {ruta_archivo}")
+
+                            # Leer el contenido del archivo
+                            with open(ruta_archivo, 'r', encoding='utf-8') as file:
+                                frase = file.read().strip()
+                            
+                            # Agregar los datos a las listas
+                            frases.append(frase)
+                            sentimientos.append(sentimiento)
+                            conjuntos.append(conjunto)
+                else:
+                    print(f"La carpeta '{carpeta}' no existe.")
+
+        # Crear un DataFrame con los datos recolectados
+        df = pd.DataFrame({
+            'phrase': frases,
+            'target': sentimientos,
+            'dataset': conjuntos
+        })
+
+        # Imprimir el DataFrame para verificar los resultados
+        print("Primeras filas del DataFrame:")
+        print(df.head(5))
+
+
+
+
+    # Crear la carpeta de salida si no existe
+    output_dir = "files/output"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Filtrar los datos del DataFrame según el conjunto (train o test)
+    df_train = df[df['dataset'] == 'train'].drop(columns=['dataset'])
+    df_test = df[df['dataset'] == 'test'].drop(columns=['dataset'])
+
+    # Rutas de los archivos CSV
+    ruta_train_csv = os.path.join(output_dir, 'train_dataset.csv')
+    ruta_test_csv = os.path.join(output_dir, 'test_dataset.csv')
+
+    # Guardar los DataFrames en archivos CSV
+    df_train.to_csv(ruta_train_csv, index=False, encoding='utf-8')
+    df_test.to_csv(ruta_test_csv, index=False, encoding='utf-8')
+
+    print(f"Archivos CSV guardados exitosamente en la carpeta '{output_dir}':")
+    print(f" - {ruta_train_csv}")
+    print(f" - {ruta_test_csv}")
+
+
